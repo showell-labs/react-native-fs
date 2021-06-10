@@ -28,7 +28,7 @@ namespace RNFSvnext
             };
 
         private readonly TaskCancellationManager<int> _tasks = new TaskCancellationManager<int>();
-        private readonly HttpClient _httpClient = new HttpClient();
+        private HttpClient _httpClient = new HttpClient();
 
         [ReactConstant]
         public string RNFSMainBundlePath = Package.Current.InstalledLocation.Path;
@@ -95,6 +95,24 @@ namespace RNFSvnext
                     return pictures;
                 }
                 return "";
+            }
+        }
+
+        [ReactMethod]
+        public void resetHttpClient(IReactPromise<bool> promise)
+        {
+            try
+            {
+                _tasks.CancelAllTasks();
+                this._httpClient.CancelPendingRequests();
+                this._httpClient.Dispose();
+                this._httpClient = null;
+                _httpClient = new HttpClient();
+                promise.Resolve(true);
+            }
+            catch (Exception)
+            {
+                promise.Resolve(false);
             }
         }
 
